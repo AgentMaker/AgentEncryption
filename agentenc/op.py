@@ -32,10 +32,10 @@ class RSAOp(BaseEncryptOp):
             f.write(self.public_pem)
 
     def encoder(self, text, *args, **kwargs) -> bytes:
-        text = base64.b64encode(text)
-        # 不够了就填充
-        if len(text) % self.length != 0:
-            text += b"=" * ((self.length + 11) - len(text) % self.length)
+        # text = base64.b64encode(text)
+        # # 不够了就填充
+        # if len(text) % self.length != 0:
+        #     text += b"=" * ((self.length + 11) - len(text) % self.length)
         rsa_key = RSA.importKey(self.public_pem)
         cipher = PKCS1_v1_5.new(rsa_key)
         cipher_text_ = []
@@ -65,5 +65,5 @@ class RSAOp(BaseEncryptOp):
         text = b""
         for item in plain_text_:
             text += item
-        text = base64.b64decode(text)
+        # text = base64.b64decode(text)
         return text

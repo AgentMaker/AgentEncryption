@@ -118,7 +118,7 @@ class BaseEncryptConfigMaker:
         if not self.params_path:
             self.params_path = os.path.join(self.load_path, PARAMS_FILE)
         if not self.op_path:
-            self.params_path = os.path.join(self.load_path, OPT_FILE)
+            self.op_path = os.path.join(self.load_path, OPT_FILE)
 
     def load(self):
         with open(self.graph_path, "rb") as graph_file:
@@ -127,7 +127,7 @@ class BaseEncryptConfigMaker:
         with open(self.params_path, "rb") as params_file:
             self.params = params_file.read()
 
-        with open(os.path.join(self.load_path, OPT_FILE), "rb") as file:
+        with open(self.op_path, "rb") as file:
             self.op_func, self.op_param = pickle.load(file)
 
     def make(self):
