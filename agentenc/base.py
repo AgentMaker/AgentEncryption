@@ -84,7 +84,7 @@ class BaseEncryptModelMaker:
 
     def make(self):
         self.load()
-        self.encrypt_op.prepare(self.save_path)
+        self.encrypt_op.prepare(self)
         self.graph = self.encrypt_op.encoder(self.graph)
         self.params = self.encrypt_op.encoder(self.params)
         self.pack()
@@ -132,9 +132,9 @@ class BaseEncryptConfigMaker:
 
     def make(self, **kwargs):
         self.load()
-        self.graph = self.op_func(self.graph, self, **self.op_param, **kwargs)
-        self.params = self.op_func(self.params, self, **self.op_param, **kwargs)
-        self.config.set_model_buffer(self.graph, len(self.graph), self.params, len(self.params))
+        __graph = self.op_func(self.graph, self, **self.op_param, **kwargs)
+        __params = self.op_func(self.params, self, **self.op_param, **kwargs)
+        self.config.set_model_buffer(__graph, len(__graph), __params, len(__params))
         # 返回加载情况
         return self.config.model_from_memory()
 

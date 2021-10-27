@@ -4,7 +4,7 @@
 # Please indicate the source for reprinting.
 
 from agentenc.base import BaseEncryptModelMaker
-from agentenc.op import RSAOp
+from agentenc.op import SampleRSAOp
 
 
 class RSAEncryptModelMaker(BaseEncryptModelMaker):
@@ -16,4 +16,4 @@ class RSAEncryptModelMaker(BaseEncryptModelMaker):
         super().__init__(model_path,
                          param_path,
                          save_path,
-                         encrypt_op=RSAOp(bits))
+                         encrypt_op=SampleRSAOp(bits))
