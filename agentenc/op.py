@@ -32,10 +32,6 @@ class RSAOp(BaseEncryptOp):
             f.write(self.public_pem)
 
     def encoder(self, text, *args, **kwargs) -> bytes:
-        # text = base64.b64encode(text)
-        # # 不够了就填充
-        # if len(text) % self.length != 0:
-        #     text += b"=" * ((self.length + 11) - len(text) % self.length)
         rsa_key = RSA.importKey(self.public_pem)
         cipher = PKCS1_v1_5.new(rsa_key)
         cipher_text_ = []
@@ -48,7 +44,7 @@ class RSAOp(BaseEncryptOp):
         return cipher_text
 
     def get_param(self) -> dict:
-        return {"length": self.length}
+        return {"length": self.length + 11}
 
     @staticmethod
     def decoder(text, *arg, **kwargs) -> bytes:
@@ -56,7 +52,7 @@ class RSAOp(BaseEncryptOp):
         load_path = self.load_path
         with open(os.path.join(load_path, PRIVATE_FILE), "rb") as f:
             rsa_key = RSA.importKey(f.read())
-        length = kwargs["length"] + 11
+        length = kwargs["length"]
 
         cipher = PKCS1_v1_5.new(rsa_key)
         plain_text_ = []
@@ -65,5 +61,4 @@ class RSAOp(BaseEncryptOp):
         text = b""
         for item in plain_text_:
             text += item
-        # text = base64.b64decode(text)
         return text

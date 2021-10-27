@@ -130,10 +130,10 @@ class BaseEncryptConfigMaker:
         with open(self.op_path, "rb") as file:
             self.op_func, self.op_param = pickle.load(file)
 
-    def make(self):
+    def make(self, **kwargs):
         self.load()
-        self.graph = self.op_func(self.graph, self, **self.op_param)
-        self.params = self.op_func(self.params, self, **self.op_param)
+        self.graph = self.op_func(self.graph, self, **self.op_param, **kwargs)
+        self.params = self.op_func(self.params, self, **self.op_param, **kwargs)
         self.config.set_model_buffer(self.graph, len(self.graph), self.params, len(self.params))
         # 返回加载情况
         return self.config.model_from_memory()
