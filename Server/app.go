@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"agentencryption/controller"
+	"log"
 )
 
-func InitServer() *gin.Engine {
-	route := gin.Default()
-	route.Use(cors.Default())
-	route.POST("/Register")
-	return route
+func main() {
+	router := controller.InitServer()
+	err := router.Run("2333")
+	if err != nil {
+		log.Fatalln("Failed to start server: ", err)
+	}
 }
