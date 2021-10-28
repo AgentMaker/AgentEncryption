@@ -3,4 +3,4 @@
 # Copyright belongs to the author.
 # Please indicate the source for reprinting.
 
-from agentenc.base import BaseEncryptOp, BaseEncrypt
+from agentenc.encryptor import Encryptor

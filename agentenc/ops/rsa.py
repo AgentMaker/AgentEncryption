@@ -8,14 +8,14 @@ from Crypto import Random
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 
-from agentenc.base import BaseEncryptOp
+from agentenc.ops import BaseEncryptOp
 
 
 PRIVATE_FILE = "PRIVATE"
 PUBLIC_FILE = "PUBLIC"
 
 
-class SampleRSAOp(BaseEncryptOp):
+class RSAEncryptOp(BaseEncryptOp):
     def __init__(self, bits: int = 1024):
         """
         这里主要定义的是成员变量
