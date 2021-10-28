@@ -4,7 +4,7 @@
 # Please indicate the source for reprinting.
 
 
-class BaseEncryptOp:
+class EncryptOp:
     def __init__(self, *args, **kwargs):
         pass
 

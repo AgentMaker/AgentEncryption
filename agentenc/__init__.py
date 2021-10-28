@@ -3,4 +3,4 @@
 # Copyright belongs to the author.
 # Please indicate the source for reprinting.
 
-from agentenc.encryptor import Encryptor
+from agentenc.encryptor import Encryptor, RSAEncryptor

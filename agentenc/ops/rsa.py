@@ -8,14 +8,14 @@ from Crypto import Random
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 
-from agentenc.ops import BaseEncryptOp
+from agentenc.ops import EncryptOp
 
 
 PRIVATE_FILE = "PRIVATE"
 PUBLIC_FILE = "PUBLIC"
 
 
-class RSAEncryptOp(BaseEncryptOp):
+class RSAEncryptOp(EncryptOp):
     def __init__(self, bits: int = 1024):
         """
         这里主要定义的是成员变量
@@ -61,7 +61,7 @@ class RSAEncryptOp(BaseEncryptOp):
         return {"length": self.length + 11}
 
     @staticmethod
-    def decode(text, *arg, **kwargs) -> bytes:
+    def decode(text, **kwargs) -> bytes:
         """
         同encoder，该部分将传入待解密的文本，其中arg为Maker的self对象
         """

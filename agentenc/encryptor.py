@@ -3,12 +3,12 @@
 # Copyright belongs to the author.
 # Please indicate the source for reprinting.
 import pickle
-from agentenc.ops.base import BaseEncryptOp
+from agentenc.ops import EncryptOp, RSAEncryptOp
 
 
 class Encryptor:
     def __init__(self,
-                 encrypt_op: BaseEncryptOp):
+                 encrypt_op: EncryptOp):
         """
         资源文件加密基类
         :param encrypt_op: 加密相关OP
@@ -34,3 +34,11 @@ class Encryptor:
         pure_datas = decode(encrypt_datas, **kwargs, **params)
         output = pickle.loads(pure_datas)
         return output
+
+
+class RSAEncryptor(Encryptor):
+    def __init__(self, bits: int = 1024):
+        super(RSAEncryptor, self).__init__(RSAEncryptOp(bits))
+
+    def decode(input: str, private_pem: bytes):
+        return Encryptor.decode(input=input, private_pem=private_pem)
