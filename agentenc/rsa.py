@@ -3,17 +3,15 @@
 # Copyright belongs to the author.
 # Please indicate the source for reprinting.
 
-from agentenc.base import BaseEncryptModelMaker
 from agentenc.op import SampleRSAOp
+from agentenc.base import BaseEncrypt
 
 
-class RSAEncryptModelMaker(BaseEncryptModelMaker):
+class RSAEncrypt(BaseEncrypt):
     def __init__(self,
-                 model_path,
-                 param_path,
-                 save_path,
                  bits=1024):
-        super().__init__(model_path,
-                         param_path,
-                         save_path,
-                         encrypt_op=SampleRSAOp(bits))
+        super(RSAEncrypt, self).__init__(encrypt_op=SampleRSAOp(bits))
+
+    @staticmethod
+    def decode(input: str, private_pem: bytes):
+        return BaseEncrypt.decode(input, private_pem=private_pem)
