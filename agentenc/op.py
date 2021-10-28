@@ -3,7 +3,6 @@
 # Copyright belongs to the author.
 # Please indicate the source for reprinting.
 import os
-import base64
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
@@ -15,8 +14,12 @@ PRIVATE_FILE = "PRIVATE"
 PUBLIC_FILE = "PUBLIC"
 
 
-class RSAOp(BaseEncryptOp):
+class SampleRSAOp(BaseEncryptOp):
     def __init__(self, bits: int = 1024):
+        """
+        这里主要定义的是成员变量
+        :param bits:
+        """
         super().__init__()
         self.bits = bits
         self.rsa = RSA.generate(self.bits, Random.new().read)
@@ -25,17 +28,20 @@ class RSAOp(BaseEncryptOp):
 
         self.length = bits // 8 - 11
 
-    def prepare(self, save_path):
+    def prepare(self, *arg):
+        """
+        prepare将传入Maker的self对象，所有与Maker相关变量可再此处进行处理
+        """
+        save_path = arg[0].save_path
         with open(os.path.join(save_path, PRIVATE_FILE), "wb") as f:
             f.write(self.private_pem)
         with open(os.path.join(save_path, PUBLIC_FILE), "wb") as f:
             f.write(self.public_pem)
 
     def encoder(self, text, *args, **kwargs) -> bytes:
-        text = base64.b64encode(text)
-        # 不够了就填充
-        if len(text) % self.length != 0:
-            text += b"=" * ((self.length + 11) - len(text) % self.length)
+        """
+        该部分为encoder的部分，传入bytes返回加密的bytes
+        """
         rsa_key = RSA.importKey(self.public_pem)
         cipher = PKCS1_v1_5.new(rsa_key)
         cipher_text_ = []
@@ -48,15 +54,21 @@ class RSAOp(BaseEncryptOp):
         return cipher_text
 
     def get_param(self) -> dict:
-        return {"length": self.length}
+        """
+        返回一个字典，该字典中不包含任何不想让客户端知晓的变量，但需要包含客户端解密所需要的参数
+        """
+        return {"length": self.length + 11}
 
     @staticmethod
     def decoder(text, *arg, **kwargs) -> bytes:
+        """
+        同encoder，该部分将传入待解密的文本，其中arg为Maker的self对象
+        """
         self = arg[0]
         load_path = self.load_path
         with open(os.path.join(load_path, PRIVATE_FILE), "rb") as f:
             rsa_key = RSA.importKey(f.read())
-        length = kwargs["length"] + 11
+        length = kwargs["length"]
 
         cipher = PKCS1_v1_5.new(rsa_key)
         plain_text_ = []
@@ -65,5 +77,4 @@ class RSAOp(BaseEncryptOp):
         text = b""
         for item in plain_text_:
             text += item
-        text = base64.b64decode(text)
         return text

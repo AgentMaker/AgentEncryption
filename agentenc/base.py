@@ -84,7 +84,7 @@ class BaseEncryptModelMaker:
 
     def make(self):
         self.load()
-        self.encrypt_op.prepare(self.save_path)
+        self.encrypt_op.prepare(self)
         self.graph = self.encrypt_op.encoder(self.graph)
         self.params = self.encrypt_op.encoder(self.params)
         self.pack()
@@ -118,7 +118,7 @@ class BaseEncryptConfigMaker:
         if not self.params_path:
             self.params_path = os.path.join(self.load_path, PARAMS_FILE)
         if not self.op_path:
-            self.params_path = os.path.join(self.load_path, OPT_FILE)
+            self.op_path = os.path.join(self.load_path, OPT_FILE)
 
     def load(self):
         with open(self.graph_path, "rb") as graph_file:
@@ -127,14 +127,14 @@ class BaseEncryptConfigMaker:
         with open(self.params_path, "rb") as params_file:
             self.params = params_file.read()
 
-        with open(os.path.join(self.load_path, OPT_FILE), "rb") as file:
+        with open(self.op_path, "rb") as file:
             self.op_func, self.op_param = pickle.load(file)
 
-    def make(self):
+    def make(self, **kwargs):
         self.load()
-        self.graph = self.op_func(self.graph, self, **self.op_param)
-        self.params = self.op_func(self.params, self, **self.op_param)
-        self.config.set_model_buffer(self.graph, len(self.graph), self.params, len(self.params))
+        __graph = self.op_func(self.graph, self, **self.op_param, **kwargs)
+        __params = self.op_func(self.params, self, **self.op_param, **kwargs)
+        self.config.set_model_buffer(__graph, len(__graph), __params, len(__params))
         # 返回加载情况
         return self.config.model_from_memory()
 
