@@ -5,6 +5,7 @@
 * 如下是几个简单的示例代码：
 
     ```python
+    # 导入 RSA 加密器
     from agentenc import RSAEncryptor
 
     # 初始化 RSA 加密器
@@ -25,6 +26,7 @@
     print(data == pure_data) # True
     ```
     ```python
+    # 导入 RSA 加密算子和加密器
     from agentenc import Encryptor
     from agentenc.ops import RSAEncryptOp
 
@@ -32,7 +34,7 @@
     encrypt_op = RSAEncryptOp(bits=1024)
 
     # 使用加密算子初始化加密器
-    encryptor = Encryptor(encrypt_op)
+    encryptor = Encryptor(encrypt_op=encrypt_op)
 
     # 使用加密器进行加密
     pure_data = {
@@ -40,10 +42,10 @@
         'pdiparams': open('test/sample_model/model1.pdiparams', 'rb').read()
     }
     output = 'out.agt'
-    encryptor.encode(pure_data, output)
+    encryptor.encode(input=pure_data, output=output)
 
     # 使用解密函数对文件进行解密
-    data = Encryptor.decode(output, private_pem=encryptor.encrypt_op.private_pem)
+    data = Encryptor.decode(input=output, private_pem=encryptor.encrypt_op.private_pem)
 
     # 输入与输出数据对比
     print(data==pure_data) # True
