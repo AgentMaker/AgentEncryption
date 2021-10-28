@@ -8,7 +8,7 @@
     from agentenc import RSAEncryptor
 
     # 初始化 RSA 加密器
-    encryptor = RSAEncryptor()
+    encryptor = RSAEncryptor(bits=1024)
 
     # 使用加密器进行加密
     pure_data = {
@@ -16,21 +16,20 @@
         'pdiparams': open('test/sample_model/model1.pdiparams', 'rb').read()
     }
     output = 'out.agt'
-    encryptor.encode(pure_data, output)
+    encryptor.encode(input=pure_data, output=output)
 
     # 使用解密函数对文件进行解密
-    data = RSAEncryptor.decode(output, encryptor.encrypt_op.private_pem)
+    data = RSAEncryptor.decode(input=output, private_pem=encryptor.encrypt_op.private_pem)
 
     # 输入与输出数据对比
-    print(data == pure_data)
+    print(data == pure_data) # True
     ```
-
     ```python
     from agentenc import Encryptor
     from agentenc.ops import RSAEncryptOp
 
     # 选择并初始化使用的加密算子
-    encrypt_op = RSAEncryptOp()
+    encrypt_op = RSAEncryptOp(bits=1024)
 
     # 使用加密算子初始化加密器
     encryptor = Encryptor(encrypt_op)
@@ -47,5 +46,5 @@
     data = Encryptor.decode(output, private_pem=encryptor.encrypt_op.private_pem)
 
     # 输入与输出数据对比
-    print(data==pure_data)
+    print(data==pure_data) # True
     ```
