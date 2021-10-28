@@ -3,9 +3,7 @@ package core
 import (
 	"agentencryption/common"
 	"agentencryption/model"
-	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
@@ -54,7 +52,7 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	pubkey, prikey, err := common.CreateRsaKey(2048) // Default: RSA2048
+	prikey, pubkey, err := common.CreateRsaKey(2048) // Default: 8192
 
 	if err != nil {
 		JSONFail(ctx, -2, err.Error())
@@ -63,9 +61,17 @@ func Register(ctx *gin.Context) {
 	}
 
 	var Response model.RegisterResp
-	Response.RSAPublic = pubkey
+	Response.RSAPrivate = prikey
 
 	err = ioutil.WriteFile("./keys/"+fmt.Sprint(RegParams.Username)+".AgentRSAPriv", []byte(prikey), 0700)
+
+	if err != nil {
+		JSONFail(ctx, -2, err.Error())
+		log.Println("CreateRSAError: ", err)
+		return
+	}
+
+	err = ioutil.WriteFile("./keys/"+fmt.Sprint(RegParams.Username)+".AgentRSAPub", []byte(pubkey), 0700)
 
 	if err != nil {
 		JSONFail(ctx, -2, err.Error())
@@ -93,42 +99,35 @@ func GetModel(ctx *gin.Context) {
 
 	ModelID := fmt.Sprint(GetParams.ID)
 
-	ModelParams, err := ioutil.ReadFile("/assets/" + ModelID + ".pdiparams")
+	ModelParams, err := ioutil.ReadFile("./assets/" + ModelID + ".pdiparams")
 	if err != nil {
 		JSONFail(ctx, -3, err.Error())
 		log.Println(err)
 		return
 	}
-	ModelParamInfo, err := ioutil.ReadFile("/assets/" + ModelID + ".pdiparams.info")
+	ModelParamInfo, err := ioutil.ReadFile("./assets/" + ModelID + ".pdiparams.info")
 	if err != nil {
 		JSONFail(ctx, -3, err.Error())
 		log.Println(err)
 		return
 	}
-	Model, err := ioutil.ReadFile("/assets/" + ModelID + ".pdmodel")
+	Model, err := ioutil.ReadFile("./assets/" + ModelID + ".pdmodel")
 	if err != nil {
 		JSONFail(ctx, -3, err.Error())
 		log.Println(err)
 		return
 	}
 
-	PrivateKeyFile, err := ioutil.ReadFile("./keys/" + GetParams.AccountInfo.Username + ".AgentRSAPriv")
+	PublicKeyFile, err := ioutil.ReadFile("./keys/" + GetParams.AccountInfo.Username + ".AgentRSAPub")
 	if err != nil {
 		JSONFail(ctx, -4, err.Error())
 		log.Println(err)
 		return
 	}
 
-	Block, _ := pem.Decode(PrivateKeyFile)
+	Block, _ := pem.Decode(PublicKeyFile)
 
-	PrivateKey, _ := x509.ParsePKCS1PrivateKey(Block.Bytes)
-
-	Model, err = rsa.DecryptOAEP(
-		sha256.New(),
-		rand.Reader,
-		PrivateKey,
-		Model,
-		nil)
+	KeyInterface, err := x509.ParsePKIXPublicKey(Block.Bytes)
 
 	if err != nil {
 		JSONFail(ctx, -4, err.Error())
@@ -136,28 +135,28 @@ func GetModel(ctx *gin.Context) {
 		return
 	}
 
-	ModelParams, err = rsa.DecryptOAEP(
-		sha256.New(),
-		rand.Reader,
-		PrivateKey,
-		ModelParams,
-		nil)
+	PublicKey := KeyInterface.(*rsa.PublicKey)
+
+	Model, err = common.PartEncrypt(PublicKey, Model)
 
 	if err != nil {
-		JSONFail(ctx, -4, err.Error())
+		JSONFail(ctx, -5, err.Error())
 		log.Println(err)
 		return
 	}
 
-	ModelParamInfo, err = rsa.DecryptOAEP(
-		sha256.New(),
-		rand.Reader,
-		PrivateKey,
-		ModelParamInfo,
-		nil)
+	ModelParams, err = common.PartEncrypt(PublicKey, ModelParams)
 
 	if err != nil {
-		JSONFail(ctx, -4, err.Error())
+		JSONFail(ctx, -5, err.Error())
+		log.Println(err)
+		return
+	}
+
+	ModelParamInfo, err = common.PartEncrypt(PublicKey, ModelParamInfo)
+
+	if err != nil {
+		JSONFail(ctx, -5, err.Error())
 		log.Println(err)
 		return
 	}

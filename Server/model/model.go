@@ -6,7 +6,7 @@ type RegisterParams struct {
 }
 
 type RegisterResp struct {
-	RSAPublic string `json:"PublicKey"`
+	RSAPrivate string `json:"PrivateKey"`
 }
 
 type GetModelParams struct {
