@@ -34,8 +34,9 @@ class Encryptor:
             with_decode：.agt 格式的文件，附带 python 解密函数，可依靠自身进行解密，但只可以在 python 端进行解密操作
             without_decode: .json 格式文件，可以在任意语言中读取和解密，需搭配对应语言的解密函数进行解密操作
         '''
-        encrypt_datas = self.encrypt_op.encode(pickle.dumps(input))
         if with_decode:
+            encrypt_datas = self.encrypt_op.encode(pickle.dumps(input))
+
             with open(output+'.agt', "wb") as file:
                 pickle.dump({
                     'datas': str(base64.b64encode(encrypt_datas).decode('UTF-8')),
@@ -43,6 +44,19 @@ class Encryptor:
                     'decode': self.encrypt_op.decode
                 }, file)
         else:
+            encode_input = input.copy()
+
+            # convert bytes to str
+            for k in encode_input.keys():
+                if isinstance(encode_input[k], bytes):
+                    encode_input[k] = '##base64##' + \
+                        str(base64.b64encode(encode_input[k]).decode('UTF-8'))
+                elif not isinstance(encode_input[k], (dict, list, tuple, str, int, float, bool)):
+                    raise ValueError('Please check input data type.')
+
+            encrypt_datas = self.encrypt_op.encode(
+                json.dumps(encode_input).encode('UTF-8'))
+
             with open(output+'.json', "w") as file:
                 json.dump({
                     'datas': str(base64.b64encode(encrypt_datas).decode('UTF-8')),
@@ -66,13 +80,23 @@ class Encryptor:
         elif ext == '.json':
             with open(input, "r") as file:
                 encrypt_package = json.load(file)
+        else:
+            raise ValueError('Please check input path.')
 
         params = encrypt_package['params']
         encrypt_datas = base64.b64decode(
             encrypt_package['datas'].encode('UTF-8'))
         decode = encrypt_package.get('decode', decode)
         pure_datas = decode(encrypt_datas, **kwargs, **params)
-        output = pickle.loads(pure_datas)
+
+        if ext == '.agt':
+            output = pickle.loads(pure_datas)
+        elif ext == '.json':
+            output = json.loads(pure_datas.decode('UTF-8'))
+            for k in output.keys():
+                if isinstance(output[k], str) and output[k][:10] == '##base64##':
+                    output[k] = base64.b64decode(
+                        output[k][10:].encode('UTF-8'))
         return output
 
 
