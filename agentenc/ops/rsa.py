@@ -2,8 +2,6 @@
 # Datetime: 2021/10/27
 # Copyright belongs to the author.
 # Please indicate the source for reprinting.
-import os
-
 from Crypto import Random
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
@@ -18,8 +16,10 @@ PUBLIC_FILE = "PUBLIC"
 class RSAEncryptOp(EncryptOp):
     def __init__(self, bits: int = 1024):
         """
-        这里主要定义的是成员变量
-        :param bits:
+        RSA 加密算子
+
+        :param 
+            bits(int: 1024): 加密 bit 数
         """
         super().__init__()
         self.bits = bits
@@ -29,51 +29,80 @@ class RSAEncryptOp(EncryptOp):
 
         self.length = bits // 8 - 11
 
-    def prepare(self, *arg):
+    def get_private_params(self, save_path: str = None) -> dict:
         """
-        prepare将传入Maker的self对象，所有与Maker相关变量可再此处进行处理
-        """
-        save_path = arg[0].save_path
-        with open(os.path.join(save_path, PRIVATE_FILE), "wb") as f:
-            f.write(self.private_pem)
-        with open(os.path.join(save_path, PUBLIC_FILE), "wb") as f:
-            f.write(self.public_pem)
+        获取并保存密钥
 
-    def encode(self, text, *args, **kwargs) -> bytes:
+        :param 
+            save_path(str: None): 密钥保存目录
+
+        :return
+            private_params(dict): {'private_pem': RSA 私钥, 'public_pem': RSA 公钥}
+
+        :save file details
+            "{save_path}.PUBLIC": RSA 公钥
+            "{save_path}.PRIVATE": RSA 私钥
         """
-        该部分为encoder的部分，传入bytes返回加密的bytes
+        if save_path:
+            with open(f'{save_path}.{PRIVATE_FILE}', "wb") as f:
+                f.write(self.private_pem)
+            with open(f'{save_path}.{PUBLIC_FILE}', "wb") as f:
+                f.write(self.public_pem)
+        return {
+            'private_pem': self.private_pem,
+            'public_pem': self.public_pem
+        }
+
+    def encode(self, input: bytes) -> bytes:
+        """
+        RSA 加密
+
+        :param 
+            input(bytes): 输入数据
+
+        :return
+            output(bytes): 加密数据
         """
         rsa_key = RSA.importKey(self.public_pem)
         cipher = PKCS1_v1_5.new(rsa_key)
         cipher_text_ = []
 
-        for i in range(0, len(text), self.length):
-            cipher_text_.append(cipher.encrypt(text[i:i + self.length]))
-        cipher_text = b""
+        for i in range(0, len(input), self.length):
+            cipher_text_.append(cipher.encrypt(input[i:i + self.length]))
+        output = b""
         for item in cipher_text_:
-            cipher_text += item
-        return cipher_text
+            output += item
+        return output
 
-    def get_params(self) -> dict:
+    def get_public_params(self) -> dict:
         """
-        返回一个字典，该字典中不包含任何不想让客户端知晓的变量，但需要包含客户端解密所需要的参数
+        获取解密所需的公开参数
+
+        :return
+            public_params(dict): {'length': 加密长度}
         """
         return {"length": self.length + 11}
 
     @staticmethod
-    def decode(text, **kwargs) -> bytes:
+    def decode(input: bytes, length: int, private_pem: bytes) -> bytes:
         """
-        同encoder，该部分将传入待解密的文本，其中arg为Maker的self对象
-        """
-        private_pem = kwargs['private_pem']
-        rsa_key = RSA.importKey(private_pem)
-        length = kwargs["length"]
+        RSA 解密
 
+        :param 
+            input(bytes): 加密数据
+            length(int): 加密长度
+            private_pem(bytes): 私钥
+
+        :return
+            output(bytes): 原始数据
+        """
+        rsa_key = RSA.importKey(private_pem)
         cipher = PKCS1_v1_5.new(rsa_key)
         plain_text_ = []
-        for i in range(0, len(text), length):
-            plain_text_.append(cipher.decrypt(text[i:i + length], "解密失败"))
-        text = b""
+        for i in range(0, len(input), length):
+            plain_text_.append(cipher.decrypt(
+                input[i:i + length], "Decode error."))
+        output = b""
         for item in plain_text_:
-            text += item
-        return text
+            output += item
+        return output
