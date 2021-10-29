@@ -3,48 +3,58 @@
 
 ## 快速使用
 * 如下是几个简单的示例代码：
+    * Python 格式加密：
 
-    ```python
-    from agentenc import RSAEncryptor
+        ```python
+        # 导入 RSA 加密器
+        from agentenc import RSAEncryptor
 
-    # 初始化 RSA 加密器
-    encryptor = RSAEncryptor(bits=1024)
+        # 初始化 RSA 加密器
+        encryptor = RSAEncryptor(bits=1024)
 
-    # 使用加密器进行加密
-    pure_data = {
-        'pdmodel': open('test/sample_model/model1.pdmodel', 'rb').read(),
-        'pdiparams': open('test/sample_model/model1.pdiparams', 'rb').read()
-    }
-    output = 'out.agt'
-    encryptor.encode(input=pure_data, output=output)
+        # 使用加密器进行加密
+        pure_data = {
+            'pdmodel': open('test/sample_model/model1.pdmodel', 'rb').read(),
+            'pdiparams': open('test/sample_model/model1.pdiparams', 'rb').read()
+        }
+        encryptor.encode(input=pure_data, output='out', with_decode=True)
 
-    # 使用解密函数对文件进行解密
-    data = RSAEncryptor.decode(input=output, private_pem=encryptor.encrypt_op.private_pem)
+        # 使用解密函数对文件进行解密
+        data = RSAEncryptor.decode(input='out.agt', private_pem=encryptor.encrypt_op.private_pem)
 
-    # 输入与输出数据对比
-    print(data == pure_data) # True
-    ```
-    ```python
-    from agentenc import Encryptor
-    from agentenc.ops import RSAEncryptOp
+        # 输入与输出数据对比
+        print(data == pure_data) # True
+        ```
 
-    # 选择并初始化使用的加密算子
-    encrypt_op = RSAEncryptOp(bits=1024)
+    * Json 格式加密：
+        ```python
+        # 导入 RSA 加密器
+            from agentenc import RSAEncryptor
 
-    # 使用加密算子初始化加密器
-    encryptor = Encryptor(encrypt_op)
+            # 初始化 RSA 加密器
+            encryptor = RSAEncryptor(bits=1024)
 
-    # 使用加密器进行加密
-    pure_data = {
-        'pdmodel': open('test/sample_model/model1.pdmodel', 'rb').read(),
-        'pdiparams': open('test/sample_model/model1.pdiparams', 'rb').read()
-    }
-    output = 'out.agt'
-    encryptor.encode(pure_data, output)
+            # 使用加密器进行加密
+            pure_data = {
+                'pdmodel': open('test/sample_model/model1.pdmodel', 'rb').read(),
+                'pdiparams': open('test/sample_model/model1.pdiparams', 'rb').read()
+            }
+            encryptor.encode(input=pure_data, output='out', with_decode=False)
 
-    # 使用解密函数对文件进行解密
-    data = Encryptor.decode(output, private_pem=encryptor.encrypt_op.private_pem)
+            # 使用解密函数对文件进行解密
+            data = RSAEncryptor.decode(input='out.json', private_pem=encryptor.encrypt_op.private_pem)
 
-    # 输入与输出数据对比
-    print(data==pure_data) # True
-    ```
+            # 输入与输出数据对比
+            print(data == pure_data) # True
+
+            '''
+            # out.json
+            {
+                "datas": "ZfjW4CBOUp8u73BeT8aY9sIkWum...", 
+                "params": {
+                    "length": 128
+                }
+            }
+            '''
+        ```
+
