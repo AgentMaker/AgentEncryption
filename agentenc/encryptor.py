@@ -50,12 +50,13 @@ class Encryptor:
                 }, file)
 
     @staticmethod
-    def decode(input: str, **kwargs):
+    def decode(input: str, decode=None, **kwargs):
         '''
         解密函数
 
         :param 
             input(str): 输入的文件路径
+            decode(func): 解密函数 
             **kwargs: 解密所需的一些其他参数
         '''
         ext = os.path.splitext(input)[1]
@@ -69,7 +70,7 @@ class Encryptor:
         params = encrypt_package['params']
         encrypt_datas = base64.b64decode(
             encrypt_package['datas'].encode('UTF-8'))
-        decode = encrypt_package.get('decode', kwargs['decode'])
+        decode = encrypt_package.get('decode', decode)
         pure_datas = decode(encrypt_datas, **kwargs, **params)
         output = pickle.loads(pure_datas)
         return output
