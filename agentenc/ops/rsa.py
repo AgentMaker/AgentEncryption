@@ -1,5 +1,5 @@
 # Author: Acer Zhang
-# Datetime: 2021/10/27 
+# Datetime: 2021/10/27
 # Copyright belongs to the author.
 # Please indicate the source for reprinting.
 import os
@@ -8,13 +8,14 @@ from Crypto import Random
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 
-from agentenc.base import BaseEncryptOp
+from agentenc.ops import EncryptOp
+
 
 PRIVATE_FILE = "PRIVATE"
 PUBLIC_FILE = "PUBLIC"
 
 
-class SampleRSAOp(BaseEncryptOp):
+class RSAEncryptOp(EncryptOp):
     def __init__(self, bits: int = 1024):
         """
         这里主要定义的是成员变量
@@ -38,7 +39,7 @@ class SampleRSAOp(BaseEncryptOp):
         with open(os.path.join(save_path, PUBLIC_FILE), "wb") as f:
             f.write(self.public_pem)
 
-    def encoder(self, text, *args, **kwargs) -> bytes:
+    def encode(self, text, *args, **kwargs) -> bytes:
         """
         该部分为encoder的部分，传入bytes返回加密的bytes
         """
@@ -53,21 +54,19 @@ class SampleRSAOp(BaseEncryptOp):
             cipher_text += item
         return cipher_text
 
-    def get_param(self) -> dict:
+    def get_params(self) -> dict:
         """
         返回一个字典，该字典中不包含任何不想让客户端知晓的变量，但需要包含客户端解密所需要的参数
         """
         return {"length": self.length + 11}
 
     @staticmethod
-    def decoder(text, *arg, **kwargs) -> bytes:
+    def decode(text, **kwargs) -> bytes:
         """
         同encoder，该部分将传入待解密的文本，其中arg为Maker的self对象
         """
-        self = arg[0]
-        load_path = self.load_path
-        with open(os.path.join(load_path, PRIVATE_FILE), "rb") as f:
-            rsa_key = RSA.importKey(f.read())
+        private_pem = kwargs['private_pem']
+        rsa_key = RSA.importKey(private_pem)
         length = kwargs["length"]
 
         cipher = PKCS1_v1_5.new(rsa_key)

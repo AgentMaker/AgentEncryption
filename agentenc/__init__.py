@@ -3,4 +3,4 @@
 # Copyright belongs to the author.
 # Please indicate the source for reprinting.
 
-from agentenc.base import BaseEncryptConfigMaker, BaseEncryptModelMaker, BaseEncryptOp, EncryptConfigMaker
+from agentenc.encryptor import Encryptor, RSAEncryptor
