@@ -37,14 +37,15 @@ class Encryptor:
             json: 此格式支持如下几种数据类型 (dict, list, tuple, str, int, float, bool, bytes->base64[UTF-8 str]) 组成的单层 dict 可以在任意语言中读取和解密，需搭配对应语言的解密函数进行解密操作
         '''
         if format == 'pkl':
-            encrypt_datas = self.encrypt_op.encode(pickle.dumps(input))
+            encrypt_datas = self.encrypt_op.encode(
+                pickle.dumps(input, protocol=4))
 
             with open(output+'.pkl', "wb") as file:
                 pickle.dump({
                     'datas': str(base64.b64encode(encrypt_datas).decode('UTF-8')),
                     'params': self.encrypt_op.get_public_params(),
                     'decode': self.encrypt_op.decode
-                }, file)
+                }, file, protocol=4)
         elif format == 'json':
             encode_input = input.copy()
 
