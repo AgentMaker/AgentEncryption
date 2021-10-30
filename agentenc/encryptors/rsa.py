@@ -11,7 +11,12 @@ class RSAEncryptor(Encryptor):
             bits(int: 1024): 加密使用的 bit 数
             public_key(bytes: None): RSA 公钥，格式为 b'-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY----- 的 bytes，默认随机生成
         '''
-        super(RSAEncryptor, self).__init__(RSAEncryptOp(bits, public_key))
+        super(RSAEncryptor, self).__init__(
+            RSAEncryptOp(
+                bits=bits, 
+                public_key=public_key
+            )
+        )
 
     @staticmethod
     def decode(input: str, private_key: bytes) -> any:

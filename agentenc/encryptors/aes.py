@@ -13,7 +13,14 @@ class AESEncryptor(Encryptor):
             iv(bytes: None): 偏移值，长度为 16 bytes ，默认随机生成
             key(bytes: None): AES 密钥，长度为 (bits // 8) bytes ，默认随机生成
         '''
-        super(AESEncryptor, self).__init__(AESEncryptOp(bits, mode, key, iv))
+        super(AESEncryptor, self).__init__(
+            AESEncryptOp(
+                bits=bits,
+                mode=mode,
+                iv=iv,
+                key=key
+            )
+        )
 
     @staticmethod
     def decode(input: str, key: bytes, iv: bytes) -> any:
