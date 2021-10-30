@@ -62,7 +62,7 @@ class Encryptor:
             with open(output+'.json', "w") as file:
                 json.dump({
                     'datas': str(base64.b64encode(encrypt_datas).decode('UTF-8')),
-                    'params': self.encrypt_op.get_params()
+                    'params': self.encrypt_op.get_public_params()
                 }, file)
         return self.encrypt_op.get_private_params(keys_saving_path)
 
