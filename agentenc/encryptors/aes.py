@@ -9,7 +9,7 @@ class AESEncryptor(Encryptor):
 
         :param 
             bits(int: 128): 加密使用的 bit 数
-            mode(int: AES.MODE_OFB): AES 加密类型
+            mode(str: ECB): 加密类型，可选：['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'OPENPGP', 'CCM', 'EAX', 'SIV', 'GCM', 'OCB']
         '''
         super(AESEncryptor, self).__init__(AESEncryptOp(bits, mode))
 
