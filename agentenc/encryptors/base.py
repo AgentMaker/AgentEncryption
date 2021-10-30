@@ -11,8 +11,7 @@ from agentenc.ops import EncryptOp
 
 
 class Encryptor:
-    def __init__(self,
-                 encrypt_op: EncryptOp):
+    def __init__(self, encrypt_op: EncryptOp):
         """
         加密器基类
 
