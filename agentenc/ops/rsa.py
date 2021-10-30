@@ -15,18 +15,24 @@ PUBLIC_FILE = "PUBLIC"
 
 
 class RSAEncryptOp(EncryptOp):
-    def __init__(self, bits: int = 1024):
+    def __init__(self, bits: int = 1024, public_key: bytes = None):
         """
         RSA 加密算子
 
         :param 
             bits(int: 1024): 加密 bit 数
+            public_key(bytes: None): RSA 公钥，格式为 b'-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY----- 的 bytes，默认随机生成
         """
         super().__init__()
         self.bits = bits
-        self.rsa = RSA.generate(self.bits, Random.new().read)
-        self.private_pem = self.rsa.exportKey()
-        self.public_pem = self.rsa.publickey().exportKey()
+
+        if public_key is not None:
+            self.private_key = None
+            self.public_key = public_key
+        else:
+            self.rsa = RSA.generate(self.bits, Random.new().read)
+            self.private_key = self.rsa.exportKey()
+            self.public_key = self.rsa.publickey().exportKey()
 
         self.length = bits // 8 - 11
 
@@ -38,21 +44,28 @@ class RSAEncryptOp(EncryptOp):
             save_path(str: None): 密钥保存目录
 
         :return
-            private_params(dict): {'private_pem': RSA 私钥, 'public_pem': RSA 公钥}
+            private_params(dict): {'private_key': RSA 私钥, 'public_key': RSA 公钥}
 
         :save file details
             "{save_path}.PUBLIC": RSA 公钥
             "{save_path}.PRIVATE": RSA 私钥
         """
-        if save_path:
+        if save_path and self.private_key is not None:
             with open(f'{save_path}.{PRIVATE_FILE}', "wb") as f:
-                f.write(self.private_pem)
+                f.write(self.private_key)
             with open(f'{save_path}.{PUBLIC_FILE}', "wb") as f:
-                f.write(self.public_pem)
-        return {
-            'private_pem': self.private_pem,
-            'public_pem': self.public_pem
-        }
+                f.write(self.public_key)
+            private_params = {
+                'private_key': self.private_key,
+                'public_key': self.public_key
+            }
+        else:
+            with open(f'{save_path}.{PUBLIC_FILE}', "wb") as f:
+                f.write(self.public_key)
+            private_params = {
+                'public_key': self.public_key
+            }
+        return private_params
 
     def get_public_params(self) -> dict:
         """
@@ -73,7 +86,7 @@ class RSAEncryptOp(EncryptOp):
         :return
             output(bytes): 加密数据
         """
-        rsa_key = RSA.importKey(self.public_pem)
+        rsa_key = RSA.importKey(self.public_key)
         cipher = PKCS1_v1_5.new(rsa_key)
         cipher_text_ = []
 
@@ -85,19 +98,19 @@ class RSAEncryptOp(EncryptOp):
         return output
 
     @staticmethod
-    def decode(input: bytes, length: int, private_pem: bytes) -> bytes:
+    def decode(input: bytes, length: int, private_key: bytes) -> bytes:
         """
         RSA 解密
 
         :param 
             input(bytes): 加密数据
             length(int): 加密长度
-            private_pem(bytes): 私钥
+            private_key(bytes): 私钥
 
         :return
             output(bytes): 原始数据
         """
-        rsa_key = RSA.importKey(private_pem)
+        rsa_key = RSA.importKey(private_key)
         cipher = PKCS1_v1_5.new(rsa_key)
         plain_text_ = []
         for i in range(0, len(input), length):

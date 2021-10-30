@@ -10,7 +10,7 @@ from agentenc.ops import EncryptOp
 
 
 IV_FILE = "IV"
-PASSWORD_FILE = "PASSWORD"
+KEY_FILE = "KEY"
 
 
 # AES Mode Switch
@@ -30,21 +30,32 @@ ASE_MODES = {
 
 
 class AESEncryptOp(EncryptOp):
-    def __init__(self, bits: int = 128, mode: str = 'ECB'):
+    def __init__(self, bits: int = 128, mode: str = 'ECB', iv: bytes = None, key: bytes = None):
         """
         AES 加密算子
 
         :param 
             bits(int: 128): 加密 bit 数
             mode(str: ECB): 加密类型，可选：['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'OPENPGP', 'CCM', 'EAX', 'SIV', 'GCM', 'OCB']
+            iv(bytes: None): 偏移值，长度为 16 bytes ，默认随机生成
+            key(bytes: None): AES 密钥，长度为 (bits // 8) bytes ，默认随机生成
         """
         super().__init__()
         self.length = bits // 8
         self.mode = mode
-        self.password = urandom(self.length)
-        self.iv = urandom(16)
+
+        if key is not None:
+            self.key = key
+        else:
+            self.key = urandom(self.length)
+
+        if iv is not None:
+            self.iv = iv
+        else:
+            self.iv = urandom(16)
+
         self.aes = AES.new(
-            key=self.password,
+            key=self.key,
             mode=ASE_MODES[self.mode],
             iv=self.iv
         )
@@ -57,19 +68,19 @@ class AESEncryptOp(EncryptOp):
             save_path(str: None): 密钥保存目录
 
         :return
-            private_params(dict): {'password': AES 密钥, 'iv': 偏移值}
+            private_params(dict): {'key': AES 密钥, 'iv': 偏移值}
 
         :save file details
-            "{save_path}.PASSWORD": AES 密钥
+            "{save_path}.key": AES 密钥
             "{save_path}.IV": 偏移值
         """
         if save_path:
-            with open(f'{save_path}.{PASSWORD_FILE}', "wb") as f:
-                f.write(self.password)
+            with open(f'{save_path}.{KEY_FILE}', "wb") as f:
+                f.write(self.key)
             with open(f'{save_path}.{IV_FILE}', "wb") as f:
                 f.write(self.iv)
         return {
-            'password': self.password,
+            'key': self.key,
             'iv': self.iv
         }
 
@@ -103,7 +114,7 @@ class AESEncryptOp(EncryptOp):
         return output
 
     @staticmethod
-    def decode(input: bytes, mode: str, iv: bytes, password: bytes) -> bytes:
+    def decode(input: bytes, mode: str, iv: bytes, key: bytes) -> bytes:
         """
         AES 解密
 
@@ -111,12 +122,12 @@ class AESEncryptOp(EncryptOp):
             input(bytes): 加密数据
             mode(str): 加密类型，可选：['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'OPENPGP', 'CCM', 'EAX', 'SIV', 'GCM', 'OCB']
             iv(bytes): 偏移值
-            password(bytes): AES 密钥
+            key(bytes): AES 密钥
 
         :return
             output(bytes): 原始数据
         """
-        aes = AES.new(key=password, mode=ASE_MODES[mode], iv=iv)
+        aes = AES.new(key=key, mode=ASE_MODES[mode], iv=iv)
         output = aes.decrypt(input)
         output = output.rstrip(b'\x00')
         return output
