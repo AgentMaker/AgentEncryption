@@ -3,7 +3,7 @@ from agentenc.ops import AESEncryptOp
 
 
 class AESEncryptor(Encryptor):
-    def __init__(self, bits: int = 128, mode: str = 'ECB', iv: bytes = None, key: bytes = None):
+    def __init__(self, bits: int = 128, mode: str = 'ECB', key: bytes = None, **kwargs):
         '''
         AES 加密器
 
@@ -17,13 +17,13 @@ class AESEncryptor(Encryptor):
             AESEncryptOp(
                 bits=bits,
                 mode=mode,
-                iv=iv,
-                key=key
+                key=key,
+                **kwargs
             )
         )
 
     @staticmethod
-    def decode(input: str, key: bytes, iv: bytes) -> any:
+    def decode(input: str, key: bytes, **kwargs) -> any:
         '''
         解密函数
 
@@ -38,6 +38,6 @@ class AESEncryptor(Encryptor):
         return Encryptor.decode(
             input=input,
             key=key,
-            iv=iv,
-            decode=AESEncryptOp.decode
+            decode=AESEncryptOp.decode,
+            **kwargs
         )

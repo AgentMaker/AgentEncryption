@@ -20,25 +20,23 @@ ASE_MODES = {
     'CFB': AES.MODE_CFB,
     'OFB': AES.MODE_OFB,
     'CTR': AES.MODE_CTR,
-    'OPENPGP': AES.MODE_OPENPGP,
     'CCM': AES.MODE_CCM,
     'EAX': AES.MODE_EAX,
-    'SIV': AES.MODE_SIV,
     'GCM': AES.MODE_GCM,
     'OCB': AES.MODE_OCB
 }
 
 
 class AESEncryptOp(EncryptOp):
-    def __init__(self, bits: int = 128, mode: str = 'ECB', iv: bytes = None, key: bytes = None):
+    def __init__(self, bits: int = 128, mode: str = 'ECB', key: bytes = None, **kwargs):
         """
         AES 加密算子
 
         :param 
             bits(int: 128): 加密 bit 数
-            mode(str: ECB): 加密类型，可选：['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'OPENPGP', 'CCM', 'EAX', 'SIV', 'GCM', 'OCB']
-            iv(bytes: None): 偏移值，长度为 16 bytes ，默认随机生成
+            mode(str: ECB): 加密类型，可选：['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
             key(bytes: None): AES 密钥，长度为 (bits // 8) bytes ，默认随机生成
+            **kwargs: 一些其他的加密参数，如 iv, nonce 等
         """
         super().__init__()
         self.length = bits // 8
@@ -49,15 +47,10 @@ class AESEncryptOp(EncryptOp):
         else:
             self.key = urandom(self.length)
 
-        if iv is not None:
-            self.iv = iv
-        else:
-            self.iv = urandom(16)
-
         self.aes = AES.new(
             key=self.key,
             mode=ASE_MODES[self.mode],
-            iv=self.iv
+            **kwargs
         )
 
     def get_private_params(self, save_path: str = None) -> dict:
@@ -68,20 +61,17 @@ class AESEncryptOp(EncryptOp):
             save_path(str: None): 密钥保存目录
 
         :return
-            private_params(dict): {'key': AES 密钥, 'iv': 偏移值}
+            private_params(dict): {'key': AES 密钥}
 
         :save file details
             "{save_path}.key": AES 密钥
-            "{save_path}.IV": 偏移值
         """
         if save_path:
             with open(f'{save_path}.{KEY_FILE}', "wb") as f:
                 f.write(self.key)
-            with open(f'{save_path}.{IV_FILE}', "wb") as f:
-                f.write(self.iv)
+
         return {
-            'key': self.key,
-            'iv': self.iv
+            'key': self.key
         }
 
     def get_public_params(self) -> dict:
@@ -91,7 +81,21 @@ class AESEncryptOp(EncryptOp):
         :return
             public_params(dict): {'mode': 加密类型}
         """
-        return {'mode': self.mode}
+
+        if hasattr(self.aes, 'iv'):
+            return {
+                'mode': self.mode,
+                'iv': self.aes.iv
+            }
+        elif hasattr(self.aes, 'nonce'):
+            return {
+                'mode': self.mode,
+                'nonce': self.aes.nonce
+            }
+        else:
+            return {
+                'mode': self.mode
+            }
 
     def encode(self, input: bytes) -> bytes:
         """
@@ -114,20 +118,20 @@ class AESEncryptOp(EncryptOp):
         return output
 
     @staticmethod
-    def decode(input: bytes, mode: str, iv: bytes, key: bytes) -> bytes:
+    def decode(input: bytes, mode: str, key: bytes, **kwargs) -> bytes:
         """
         AES 解密
 
         :param 
             input(bytes): 加密数据
-            mode(str): 加密类型，可选：['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'OPENPGP', 'CCM', 'EAX', 'SIV', 'GCM', 'OCB']
-            iv(bytes): 偏移值
+            mode(str): 加密类型，可选：['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
             key(bytes): AES 密钥
+            **kwargs: 一些其他的加密参数，如 iv, nonce 等
 
         :return
             output(bytes): 原始数据
         """
-        aes = AES.new(key=key, mode=ASE_MODES[mode], iv=iv)
+        aes = AES.new(key=key, mode=ASE_MODES[mode], **kwargs)
         output = aes.decrypt(input)
         output = output.rstrip(b'\x00')
         return output

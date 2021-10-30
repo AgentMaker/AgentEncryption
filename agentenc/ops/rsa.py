@@ -50,22 +50,23 @@ class RSAEncryptOp(EncryptOp):
             "{save_path}.PUBLIC": RSA 公钥
             "{save_path}.PRIVATE": RSA 私钥
         """
-        if save_path and self.private_key is not None:
-            with open(f'{save_path}.{PRIVATE_FILE}', "wb") as f:
-                f.write(self.private_key)
+        if save_path:
             with open(f'{save_path}.{PUBLIC_FILE}', "wb") as f:
                 f.write(self.public_key)
-            private_params = {
-                'private_key': self.private_key,
-                'public_key': self.public_key
+
+            if self.private_key is not None:
+                with open(f'{save_path}.{PRIVATE_FILE}', "wb") as f:
+                    f.write(self.private_key)
+
+        if self.private_key is not None:
+            return {
+                'public_key': self.public_key,
+                'private_key': self.private_key
             }
         else:
-            with open(f'{save_path}.{PUBLIC_FILE}', "wb") as f:
-                f.write(self.public_key)
-            private_params = {
+            return {
                 'public_key': self.public_key
             }
-        return private_params
 
     def get_public_params(self) -> dict:
         """
