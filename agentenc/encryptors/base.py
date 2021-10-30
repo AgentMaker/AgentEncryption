@@ -23,7 +23,7 @@ class Encryptor:
     @staticmethod
     def bytes2str(input: bytes) -> str:
         '''
-        bytes to str (input -> ##bytes##{str(input)}##bytes##)
+        bytes to base64 str (input -> data:data/agt;base64,{base64[input]})
 
         :param 
             input(bytes): 输入
@@ -37,7 +37,7 @@ class Encryptor:
     @staticmethod
     def str2bytes(input: str) -> bytes:
         '''
-        str to bytes (##bytes##{str(input)}##bytes## -> input)
+        base64 str to bytes (data:data/agt;base64,{base64[input]} -> input)
 
         :param 
             input(bytes): 输入
@@ -160,6 +160,7 @@ class Encryptor:
         '''
         ext = os.path.splitext(input)[1]
 
+        # 加载机密数据包
         if ext == '.pkl':
             with open(input, "rb") as file:
                 encrypt_package = pickle.load(file)
@@ -169,13 +170,16 @@ class Encryptor:
         else:
             raise ValueError('Please check input path.')
 
+        # 解码公开参数
         params = encrypt_package['params']
         params = Encryptor.resume_and_convert(params)
 
+        # 解码加密数据
         encrypt_datas = Encryptor.str2bytes(encrypt_package['datas'])
         decode = encrypt_package.get('decode', decode)
         pure_datas = decode(encrypt_datas, **kwargs, **params)
 
+        # 重新加载原始数据
         if ext == '.pkl':
             output = pickle.loads(pure_datas)
         elif ext == '.json':
