@@ -7,7 +7,8 @@ import json
 import base64
 import pickle
 
-from agentenc.ops import EncryptOp, RSAEncryptOp
+from Crypto.Cipher import AES
+from agentenc.ops import EncryptOp, RSAEncryptOp, AESEncryptOp
 
 
 class Encryptor:
@@ -133,4 +134,34 @@ class RSAEncryptor(Encryptor):
             input=input,
             private_pem=private_pem,
             decode=RSAEncryptOp.decode
+        )
+
+
+class AESEncryptor(Encryptor):
+    def __init__(self, bits: int = 128, mode: int = AES.MODE_OFB):
+        '''
+        AES 加密器
+
+        :param 
+            bits(int: 128): 加密使用的 bit 数
+            mode(int: AES.MODE_OFB): AES 加密类型
+        '''
+        super(AESEncryptor, self).__init__(AESEncryptOp(bits, mode))
+
+    @staticmethod
+    def decode(input: str, password: bytes) -> any:
+        '''
+        解密函数
+
+        :param 
+            input(str): 输入的文件路径
+            password(bytes): AES 密钥
+
+        :return
+            pure_datas(any): 原始数据
+        '''
+        return Encryptor.decode(
+            input=input,
+            password=password,
+            decode=AESEncryptOp.decode
         )
