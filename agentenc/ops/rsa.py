@@ -2,6 +2,7 @@
 # Datetime: 2021/10/27
 # Copyright belongs to the author.
 # Please indicate the source for reprinting.
+
 from Crypto import Random
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
@@ -53,6 +54,15 @@ class RSAEncryptOp(EncryptOp):
             'public_pem': self.public_pem
         }
 
+    def get_public_params(self) -> dict:
+        """
+        获取解密所需的公开参数
+
+        :return
+            public_params(dict): {'length': 加密长度}
+        """
+        return {"length": self.length + 11}
+
     def encode(self, input: bytes) -> bytes:
         """
         RSA 加密
@@ -73,15 +83,6 @@ class RSAEncryptOp(EncryptOp):
         for item in cipher_text_:
             output += item
         return output
-
-    def get_public_params(self) -> dict:
-        """
-        获取解密所需的公开参数
-
-        :return
-            public_params(dict): {'length': 加密长度}
-        """
-        return {"length": self.length + 11}
 
     @staticmethod
     def decode(input: bytes, length: int, private_pem: bytes) -> bytes:

@@ -11,7 +11,7 @@ __version__ = "0.1"
 setup(
     name='AgentEnc',
     version=__version__,
-    packages=find_packages(),
+    packages=['agentenc', 'agentenc.ops', 'agentenc.encryptors'],
     url='https://github.com/AgentMaker/AgentEncryption',
     license='Apache2',
     author='GT-ZhangAcer',
