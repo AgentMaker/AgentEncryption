@@ -41,7 +41,7 @@
         # 使用解密函数对文件进行解密
         data = RSAEncryptor.decode(
             input='out.pkl', 
-            private_pem=encryptor.encrypt_op.private_pem
+            private_pem=key['private_pem']
         )
 
         # 输入与输出数据对比
