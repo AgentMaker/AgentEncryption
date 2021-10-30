@@ -23,7 +23,7 @@ class Encryptor:
     @staticmethod
     def bytes2str(input: bytes) -> str:
         '''
-        bytes to str (input -> ##bytes##{str(input)}##bytes##)
+        bytes to base64 str (input -> data:data/agt;base64,{base64[input]})
 
         :param 
             input(bytes): 输入
@@ -31,12 +31,13 @@ class Encryptor:
         :return
             output(str): 输出 
         '''
-        return f'##bytes##{str(input)}##bytes##'
+        output = base64.b64encode(input).decode('UTF-8')
+        return f'data:data/agt;base64,{output}'
 
     @staticmethod
     def str2bytes(input: str) -> bytes:
         '''
-        str to bytes (##bytes##{str(input)}##bytes## -> input)
+        base64 str to bytes (data:data/agt;base64,{base64[input]} -> input)
 
         :param 
             input(bytes): 输入
@@ -44,8 +45,8 @@ class Encryptor:
         :return
             output(str): 输出
         '''
-        if isinstance(input, str) and input[-9:] == input[:9] == '##bytes##':
-            input = eval(input[9:-9])
+        if isinstance(input, str) and input[:21] == 'data:data/agt;base64,':
+            input = base64.b64decode(input[21:].encode('UTF-8'))
             assert type(input) == bytes
         return input
 
@@ -125,7 +126,7 @@ class Encryptor:
 
             with open(output+'.pkl', "wb") as file:
                 pickle.dump({
-                    'datas': str(base64.b64encode(encrypt_datas).decode('UTF-8')),
+                    'datas': Encryptor.bytes2str(encrypt_datas),
                     'params': self.encrypt_op.get_public_params(),
                     'decode': self.encrypt_op.decode
                 }, file, protocol=4)
@@ -136,8 +137,8 @@ class Encryptor:
 
             with open(output+'.json', "w") as file:
                 json.dump({
-                    'datas': str(base64.b64encode(encrypt_datas).decode('UTF-8')),
-                    'params': self.encrypt_op.get_public_params()
+                    'datas': Encryptor.bytes2str(encrypt_datas),
+                    'params': Encryptor.check_and_convert(self.encrypt_op.get_public_params())
                 }, file)
         else:
             raise ValueError('Please check the format type.')
@@ -158,6 +159,8 @@ class Encryptor:
             pure_datas(any): 原始数据
         '''
         ext = os.path.splitext(input)[1]
+
+        # 加载机密数据包
         if ext == '.pkl':
             with open(input, "rb") as file:
                 encrypt_package = pickle.load(file)
@@ -167,12 +170,16 @@ class Encryptor:
         else:
             raise ValueError('Please check input path.')
 
+        # 解码公开参数
         params = encrypt_package['params']
-        encrypt_datas = base64.b64decode(
-            encrypt_package['datas'].encode('UTF-8'))
+        params = Encryptor.resume_and_convert(params)
+
+        # 解码加密数据
+        encrypt_datas = Encryptor.str2bytes(encrypt_package['datas'])
         decode = encrypt_package.get('decode', decode)
         pure_datas = decode(encrypt_datas, **kwargs, **params)
 
+        # 重新加载原始数据
         if ext == '.pkl':
             output = pickle.loads(pure_datas)
         elif ext == '.json':
