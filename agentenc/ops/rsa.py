@@ -82,7 +82,7 @@ class RSAEncryptOp(EncryptOp):
         RSA 加密
 
         :param 
-            input(bytes): 输入数据
+            inp(bytes): 输入数据
 
         :return
             output(bytes): 加密数据
@@ -104,7 +104,7 @@ class RSAEncryptOp(EncryptOp):
         RSA 解密
 
         :param 
-            input(bytes): 加密数据
+            inp(bytes): 加密数据
             length(int): 加密长度
             private_key(bytes): 私钥
 

@@ -102,7 +102,7 @@ class AESEncryptOp(EncryptOp):
         AES 加密
 
         :param 
-            input(bytes): 输入数据
+            inp(bytes): 输入数据
 
         :return
             output(bytes): 加密数据
@@ -123,7 +123,7 @@ class AESEncryptOp(EncryptOp):
         AES 解密
 
         :param 
-            input(bytes): 加密数据
+            inp(bytes): 加密数据
             mode(str): 加密类型，可选：['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
             key(bytes): AES 密钥
             **kwargs: 一些其他的加密参数，如 iv, nonce 等

@@ -40,7 +40,7 @@
 
         # 使用解密函数对文件进行解密
         data = RSAEncryptor.decode(
-            input='out.pkl', 
+            inp='out.pkl', 
             private_key=key['private_key']
         )
 
@@ -63,7 +63,7 @@
         
         # 使用解密函数对文件进行解密
         data = Encryptor.decode(
-            input='out.pkl', 
+            inp='out.pkl', 
             private_key=private_key
         )
 
