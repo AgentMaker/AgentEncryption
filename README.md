@@ -1,6 +1,8 @@
 # AgentEncryption
 飞桨模型加密库 - EAP阶段  
 
+> 飞桨推理模型加密可参考[从内存中加载加密飞桨推理模型](./example/paddlepaddle)
+
 ## 快速使用
 * 如下是几个简单的示例代码：
     * 数据加密：
