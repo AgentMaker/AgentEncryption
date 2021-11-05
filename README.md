@@ -2,6 +2,9 @@
 飞桨模型加密库 - EAP阶段  
 
 > 飞桨推理模型加密可参考[从内存中加载加密飞桨推理模型](./example/paddlepaddle)
+> 1. [加密飞桨模型](./example/paddlepaddle/make_model.py)
+> 2. [借助PPQI使用加密飞桨模型](./example/paddlepaddle/test_model_ppqi.py)
+> 3. [借助PaddleInference加密飞桨模型](./example/paddlepaddle/test_model_paddleinference.py)
 
 ## 快速使用
 * 如下是几个简单的示例代码：

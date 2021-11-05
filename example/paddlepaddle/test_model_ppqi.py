@@ -3,7 +3,6 @@
 # Copyright belongs to the author.
 # Please indicate the source for reprinting.
 
-import os
 import numpy as np
 
 from ppqi import InferenceModel
