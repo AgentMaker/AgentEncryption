@@ -1,5 +1,11 @@
 # AgentEncryption
 飞桨模型加密库 - EAP阶段  
+在分发加密模型时，请务必进行不限于以下的操作方可避免轻易破解    
+- [x] 加密深度学习框架以及其相关的Python库，至少为pyd格式
+- [x] 加密AgentEncryption库，至少为pyd格式
+- [x] 限制用户只能使用你提供的Python环境
+
+
 
 > 飞桨推理模型加密可参考[从内存中加载加密飞桨推理模型](./example/paddlepaddle)
 > 1. [加密飞桨模型](./example/paddlepaddle/make_model.py)
