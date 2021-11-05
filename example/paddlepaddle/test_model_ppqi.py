@@ -29,6 +29,9 @@ inputs = np.array([1]).astype(np.float32)
 # 前向计算
 outputs = model(inputs)
 
+"""
+验证部分
+"""
 # 打开先前准备的测试结果数据
 with open(SAVE_ENC_MODEL_PATH + "_one_test.txt", "r") as f:
     one = eval(f.read())
