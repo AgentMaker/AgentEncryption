@@ -5,29 +5,41 @@ import lzma
 class BaseEncryptor:
     def __init__(self, **kwargs) -> None:
         '''
-        加密算子基类
+        Base Encryptor class
         '''
         pass
 
     def encrypt(self, input: bytes, **kwargs) -> bytes:
         '''
-        定义加密流程
+        encrypt func
         '''
         pass
 
     @staticmethod
     def decrypt(input: bytes, **kwargs) -> bytes:
+        '''
+        decrypt func
+        '''
         pass
 
     @staticmethod
     def generate_keys(**kwargs) -> dict:
         '''
-        生成密钥
+        generate keys
         '''
         pass
 
     @staticmethod
     def fn(mode: str):
+        '''
+        a decorator that adds ratio and compress params to a func
+
+        param: 
+            mode(str): decorator mode, ['encrypt', 'decrypt']
+
+        return:
+            warpper(func): warpper func
+        '''
         def warpper(func):
             if mode == 'encrypt':
                 def warpper(obj, input: bytes, ratio: int = 0.1, compress: bool = True, **kwargs) -> bytes:
@@ -58,6 +70,17 @@ class BaseEncryptor:
 
     @classmethod
     def new(cls, **kwargs):
+        '''
+        new a Encryptor obj after generate keys
+
+        param:
+            **kwargs: some params of the Encryptor class
+
+        return:
+            obj(Encryptor): Encryptor obj
+            params: params of Encryptor
+            keys: random keys of Encryptor
+        '''
         keys = cls.generate_keys()
         obj = cls(**keys, **kwargs)
         return obj, obj.params, keys
