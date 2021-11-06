@@ -48,7 +48,6 @@ class AESEncryptor(BaseEncryptor):
         if hasattr(self.aes, 'nonce'):
             self.params['nonce'] = self.aes.nonce
 
-    @BaseEncryptor.fn('encrypt')
     def encrypt(self, input: bytes) -> bytes:
         """
         AES encrypt
@@ -69,7 +68,6 @@ class AESEncryptor(BaseEncryptor):
         return output
 
     @staticmethod
-    @BaseEncryptor.fn('decrypt')
     def decrypt(input: bytes, mode: str, key: bytes, **kwargs) -> bytes:
         """
         AES decrypt

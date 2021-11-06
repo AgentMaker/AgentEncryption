@@ -22,7 +22,6 @@ class RSAEncryptor(BaseEncryptor):
         rsa_key = RSA.importKey(public_key)
         self.cipher = PKCS1_v1_5.new(rsa_key)
 
-    @BaseEncryptor.fn('encrypt')
     def encrypt(self, input: bytes) -> bytes:
         '''
         RSA encrypt
@@ -39,7 +38,6 @@ class RSAEncryptor(BaseEncryptor):
         return output
 
     @staticmethod
-    @BaseEncryptor.fn('decrypt')
     def decrypt(input: bytes, bits: int, private_key: bytes, **kwargs) -> bytes:
         '''
         RSA decrypt
