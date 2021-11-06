@@ -41,23 +41,48 @@ class BaseEncryptor:
             warpper(func): warpper func
         '''
         def warpper(func):
+            '''
+            warpper func
+
+            param:
+                func(func): encrypt or decrypt func
+
+            return:
+                warpper(func): encrypt or decrypt func warpper
+            '''
             if mode == 'encrypt':
-                def warpper(obj, input: bytes, ratio: int = 0.1, compress: bool = True, **kwargs) -> bytes:
+                def warpper(obj, input: bytes, ratio: float = 0.1, compress: bool = True, **kwargs) -> bytes:
                     '''
-                    ratio 
+                    encrypt func warpper
+
+                    param:
+                        input(bytes): input data
+                        ratio(float: 0.1): ratio of data to encrypt
+                        compress(bool: True): if compress data
+                        **kwargs: some other params of encrypt func
+
+                    return:
+                        output(bytes): output data
                     '''
+                    assert 0 < ratio <= 1.0, 'ratio should be in 0.0-1.0'
                     spilt_length = math.ceil(len(input) * ratio)
                     encrypt_datas = func(obj, input=input[:spilt_length])
                     encrypt_datas += b'##SPLIT##' + input[spilt_length:]
-                    print(len(encrypt_datas))
                     if compress:
                         encrypt_datas = lzma.compress(encrypt_datas)
-                    print(len(encrypt_datas))
                     return encrypt_datas
             elif mode == 'decrypt':
                 def warpper(input: bytes, compress: bool = True, **kwargs) -> bytes:
                     '''
-                    ratio 
+                    decrypt func warpper
+
+                    param:
+                        input(bytes): input data
+                        compress(bool: True): if compress data
+                        **kwargs: some other params of encrypt func
+
+                    return:
+                        output(bytes): output data
                     '''
                     if compress:
                         input = lzma.decompress(input)
