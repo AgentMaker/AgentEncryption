@@ -45,14 +45,26 @@
 * 生成密钥：
 
     ```python
-    # 导入 AES 加密器
-    from agentenc import AESEncryptor
+    import os
+    from agentenc import AESEncryptor, dump, load
 
     # 随机生成密钥
     keys = AESEncryptor.generate_keys()
-    
+
     # 打印密钥信息
     print(keys)
+    '''
+    {'key': b'\xb0#\xb1\x85\x81\xff\x15\x9fz/m\x96X\xd2\x1c\xe9'}
+    '''
+
+    # 导出密钥
+    dump(keys, 'export/KEY')
+
+    # 列出文件
+    print(os.listdir('export'))
+    '''
+    ['KEY.key']
+    '''
     ```
 
 * 自定义密钥加密：
@@ -61,8 +73,11 @@
     # 导入 AES 加密器
     from agentenc import AESEncryptor
 
+    # 加载密钥
+    key = load('export/KEY.key')
+
     # 使用自定义的 key 初始化加密器
-    aes = AESEncryptor(bits=128, mode='ECB', key={key})
+    aes = AESEncryptor(bits=128, mode='ECB', key=key)
 
     # 获取参数信息
     params = aes.params

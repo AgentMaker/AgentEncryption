@@ -70,7 +70,7 @@ class AESEncryptor(BaseEncryptor):
 
     @staticmethod
     @BaseEncryptor.fn('decrypt')
-    def decrypt(input: bytes, bits: int, mode: str, key: bytes, **kwargs) -> bytes:
+    def decrypt(input: bytes, mode: str, key: bytes, **kwargs) -> bytes:
         """
         AES decrypt
 
