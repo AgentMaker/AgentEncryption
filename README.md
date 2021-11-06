@@ -42,6 +42,24 @@
     print(_input_data==input_data)
     ```
 
+* 导出与加载
+
+    ```python
+    from agentenc import dump, load
+
+    # 使用 dump 方法进行数据、密钥和参数信息的导出
+    # 输入的对象必须为字典或 Bytes
+    # 设置的 path 无需包含文件后缀
+    # Bytes -> {path}.data
+    # Dict 中的 Bytes Vaule -> {path}.{Key in Dict}
+    # 其余的 Dict -> {path}.json
+    dump(obj, path)
+
+    # 加载导出的数据
+    # path 需要填写完整路径包含文件后缀
+    obj = load(path)
+    ```
+
 * 生成密钥：
 
     ```python

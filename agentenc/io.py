@@ -1,8 +1,17 @@
 import os
 import json
+from typing import Union
 
 
-def dump(obj, path, encoding='UTF-8'):
+def dump(obj: Union[dict, bytes], path: str, encoding: str = 'UTF-8') -> None:
+    '''
+    export data
+
+    :param
+        obj([dict, bytes]): data obj
+        path(str): export path without file ext
+        encoding(str: UTF-8): encoding of json file
+    '''
     dir, _ = os.path.split(os.path.abspath(path))
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -23,7 +32,14 @@ def dump(obj, path, encoding='UTF-8'):
         raise ValueError(f'No support the {obj_type} object.')
 
 
-def load(path, encoding='UTF-8'):
+def load(path: str, encoding: str = 'UTF-8'):
+    '''
+    load data
+
+    :param
+        path(str): data path with file ext
+        encoding(str: UTF-8): encoding of json file
+    '''
     assert os.path.isfile(path), 'Please check the path of file'
     if os.path.splitext(path)[1] == '.json':
         with open(path, 'r', encoding=encoding) as f:
