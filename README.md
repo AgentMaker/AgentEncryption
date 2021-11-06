@@ -16,20 +16,28 @@
 
     # 打印参数信息
     print(params)
+    '''
+    {'bits': 128, 'mode': 'ECB'}
+    '''
 
     # 打印密钥信息
     print(keys)
+    '''
+    {'key': b'9\xf1bu\xe8c`]\x98\x8e\xd5#d\x19\x99\x05'}
+    '''
 
     # 使用一个字符串的 Bytes 数据进行加密测试
     input_data = b'Hello Encryptor.'
 
     # 使用 AES 加密器对输入数据进行加密
-    # ratio(0.0-1.0) 参数控制加密的数据比例，参数越大压缩比例越大
     # compress 参数表示是否对数据进行压缩处理 
-    output_data = aes.encrypt(input_data, ratio=0.1, compress=True)
+    output_data = aes.encrypt(input_data, compress=True)
 
     # 打印加密后的数据
     print(output_data)
+    '''
+    b"\xfd7zXZ\x00\x00\x04...\x01\x00\x00\x00\x00\x04YZ"
+    '''
 
     # 使用 AES 解密函数对加密数据进行解密
     # 解密函数需要使用上面返回的加密器参数和密钥信息
@@ -37,9 +45,15 @@
 
     # 打印解密数据
     print(_input_data)
+    '''
+    b'Hello Encryptor.'
+    '''
 
     # 对比加解密前后的数据
     print(_input_data==input_data)
+    '''
+    True
+    '''
     ```
 
 * 导出与加载
@@ -88,7 +102,6 @@
 * 自定义密钥加密：
 
     ```python
-    # 导入 AES 加密器
     from agentenc import AESEncryptor
 
     # 加载密钥
