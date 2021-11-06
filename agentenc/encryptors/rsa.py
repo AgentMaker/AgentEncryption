@@ -1,37 +1,81 @@
-from agentenc.encryptors import Encryptor
-from agentenc.ops import RSAEncryptOp
+from Crypto import Random
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
+
+from .base import BaseEncryptor
 
 
-class RSAEncryptor(Encryptor):
-    def __init__(self, bits: int = 1024, public_key: bytes = None):
-        """
-        RSA 加密器
-
-        :param 
-            bits(int: 1024): 加密使用的 bit 数
-            public_key(bytes: None): RSA 公钥，格式为 b'-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY----- 的 bytes，默认随机生成
-        """
-        super(RSAEncryptor, self).__init__(
-            RSAEncryptOp(
-                bits=bits, 
-                public_key=public_key
-            )
-        )
-
-    @staticmethod
-    def decode(inp: str, private_key: bytes) -> any:
-        """
-        解密函数
+class RSAEncryptor(BaseEncryptor):
+    def __init__(self, public_key: bytes, bits: int = 1024, **kwargs) -> None:
+        '''
+        RSA Encryptor
 
         :param 
-            inp(str): 输入的文件路径
-            private_key(bytes): RSA 私钥用于数据解密
+            public_key(bytes): RSA public key, b'-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----'
+            bits(int: 1024): RSA bits
+        '''
+        super().__init__()
+        self.bits = bits
+        self.bytes = bits // 8 - 11
+        self.params = {'bits': bits}
+
+        rsa_key = RSA.importKey(public_key)
+        self.cipher = PKCS1_v1_5.new(rsa_key)
+
+    @BaseEncryptor.fn('encrypt')
+    def encrypt(self, input: bytes) -> bytes:
+        '''
+        RSA encrypt
+
+        :param
+            input(bytes): input data
 
         :return
-            pure_datas(any): 原始数据
-        """
-        return Encryptor.decode(
-            inp=inp,
-            private_key=private_key,
-            decode=RSAEncryptOp.decode
-        )
+            output(bytes): output data
+        '''
+        output = b''
+        for i in range(0, len(input), self.bytes):
+            output += self.cipher.encrypt(input[i:i + self.bytes])
+        return output
+
+    @staticmethod
+    @BaseEncryptor.fn('decrypt')
+    def decrypt(input: bytes, bits: int, private_key: bytes, **kwargs) -> bytes:
+        '''
+        RSA decrypt
+
+        :param 
+            input(bytes): input data
+            length(int): length of encryption
+            private_key(bytes): RSA private key, b'-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----'
+
+        :return
+            output(bytes): output data
+        '''
+        rsa_key = RSA.importKey(private_key)
+        cipher = PKCS1_v1_5.new(rsa_key)
+
+        output = b''
+        for i in range(0, len(input), bits//8):
+            output += cipher.decrypt(input[i:i + bits//8], 'Decode error.')
+
+        return output
+
+    @staticmethod
+    def generate_keys(bits: int = 1024) -> dict:
+        '''
+        generate RSA private and public keys
+
+        :param 
+            bits(int: 1024): RSA bits
+
+        :return
+            output(dict): a dict of RSA private and public keys, {'private_key': private_key, 'public_key': public_key}
+        '''
+        rsa = RSA.generate(bits, Random.new().read)
+        private_key = rsa.exportKey()
+        public_key = rsa.publickey().exportKey()
+        return {
+            'private_key': private_key,
+            'public_key': public_key
+        }

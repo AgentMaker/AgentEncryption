@@ -1,3 +1,3 @@
-from agentenc.encryptors.base import Encryptor
-from agentenc.encryptors.rsa import RSAEncryptor
-from agentenc.encryptors.aes import AESEncryptor
+from .base import BaseEncryptor
+from .rsa import RSAEncryptor
+from .aes import AESEncryptor
