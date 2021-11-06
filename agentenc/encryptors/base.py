@@ -1,4 +1,3 @@
-import math
 import lzma
 
 
@@ -32,7 +31,7 @@ class BaseEncryptor:
     @staticmethod
     def fn(mode: str):
         '''
-        a decorator that adds ratio and compress params to a func
+        a decorator that adds compress param to a func
 
         param: 
             mode(str): decorator mode, ['encrypt', 'decrypt']
@@ -51,26 +50,23 @@ class BaseEncryptor:
                 warpper(func): encrypt or decrypt func warpper
             '''
             if mode == 'encrypt':
-                def warpper(obj, input: bytes, ratio: float = 0.1, compress: bool = True, **kwargs) -> bytes:
+                def warpper(obj, input: bytes, compress: bool = True, **kwargs) -> bytes:
                     '''
                     encrypt func warpper
 
                     param:
                         input(bytes): input data
-                        ratio(float: 0.1): ratio of data to encrypt
                         compress(bool: True): if compress data
                         **kwargs: some other params of encrypt func
 
                     return:
                         output(bytes): output data
                     '''
-                    assert 0 < ratio <= 1.0, 'ratio should be in 0.0-1.0'
-                    spilt_length = math.ceil(len(input) * ratio)
-                    encrypt_datas = func(obj, input=input[:spilt_length])
-                    encrypt_datas += b'##SPLIT##' + input[spilt_length:]
+                    output = func(obj, input)
                     if compress:
-                        encrypt_datas = lzma.compress(encrypt_datas)
-                    return encrypt_datas
+                        output = lzma.compress(output)
+                    return output
+
             elif mode == 'decrypt':
                 def warpper(input: bytes, compress: bool = True, **kwargs) -> bytes:
                     '''
@@ -79,6 +75,7 @@ class BaseEncryptor:
                     param:
                         input(bytes): input data
                         compress(bool: True): if compress data
+                        head_len(int: 8): len of the head
                         **kwargs: some other params of encrypt func
 
                     return:
@@ -86,9 +83,7 @@ class BaseEncryptor:
                     '''
                     if compress:
                         input = lzma.decompress(input)
-                    encrypt_input, noencrypt_input = input.split(b'##SPLIT##')
-                    output = func(encrypt_input, **kwargs)
-                    output += noencrypt_input
+                    output = func(input, **kwargs)
                     return output
             return warpper
         return warpper

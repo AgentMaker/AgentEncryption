@@ -59,16 +59,18 @@ class AESEncryptor(BaseEncryptor):
         :return
             output(bytes): output data
         """
-        count = len(input)
-        pad = self.bytes - (count %
-                            self.bytes) if count % self.bytes != 0 else 0
-        input = input + pad.to_bytes(pad, 'big')
+        length = len(input)
+        amount_to_pad = AES.block_size - (length % AES.block_size)
+        if amount_to_pad == 0:
+            amount_to_pad = AES.block_size
+        pad = amount_to_pad.to_bytes(amount_to_pad, 'big')
+        input += pad
         output = self.aes.encrypt(input)
         return output
 
     @staticmethod
     @BaseEncryptor.fn('decrypt')
-    def decrypt(input: bytes, mode: str, key: bytes, **kwargs) -> bytes:
+    def decrypt(input: bytes, bits: int, mode: str, key: bytes, **kwargs) -> bytes:
         """
         AES decrypt
 
@@ -84,8 +86,8 @@ class AESEncryptor(BaseEncryptor):
         kwargs = {k: v for k, v in kwargs.items() if k in ['iv', 'nonce']}
         aes = AES.new(key=key, mode=ASE_MODES[mode], **kwargs)
         output = aes.decrypt(input)
-        output = output[:-output[-1]]
-        return output
+        pad = output[-1]
+        return output[:-pad]
 
     @staticmethod
     def generate_keys(bits: int = 128) -> dict:
