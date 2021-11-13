@@ -1,17 +1,26 @@
 from Crypto import Random
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_v1_5
+from Crypto.Cipher import PKCS1_v1_5, PKCS1_OAEP
 
 from .base import BaseEncryptor
 
 
 class RSAEncryptor(BaseEncryptor):
-    def __init__(self, bits: int = 1024, public_key: bytes = None) -> None:
+    RSA_MODES = {
+        'PKCS1': PKCS1_v1_5,
+        'PKCS1_OAEP': PKCS1_OAEP
+    }
+    '''
+    RSA modes: ['PKCS1', 'PKCS1_OAEP']
+    '''
+
+    def __init__(self, bits: int = 1024, mode: str = 'PKCS1', public_key: bytes = None) -> None:
         '''
         RSA Encryptor
 
         :param
             bits(int: 1024): RSA bits
+            mode(str: PKCS1): RSA modes, ['PKCS1', 'PKCS1_OAEP']
             public_key(bytes: None): RSA public key, b'-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----'
         '''
         super().__init__()
@@ -19,10 +28,11 @@ class RSAEncryptor(BaseEncryptor):
         self.bytes = bits // 8 - 11
         self.params = {'bits': bits}
 
-        self.keys = self.generate_keys(bits=bits) if public_key is None else {'public_key': public_key}
+        self.keys = self.generate_keys(bits=bits) if public_key is None else {
+            'public_key': public_key}
 
         rsa_key = RSA.importKey(self.keys['public_key'])
-        self.cipher = PKCS1_v1_5.new(rsa_key)
+        self.cipher = self.RSA_MODES[mode].new(rsa_key)
 
     def encrypt(self, input: bytes) -> bytes:
         '''
@@ -40,24 +50,30 @@ class RSAEncryptor(BaseEncryptor):
         return output
 
     @staticmethod
-    def decrypt(input: bytes, bits: int, private_key: bytes, **kwargs) -> bytes:
+    def decrypt(input: bytes, bits: int, mode: str, private_key: bytes, **kwargs) -> bytes:
         '''
         RSA decrypt
 
         :param 
             input(bytes): input data
-            length(int): length of encryption
+            bits(int): RSA bits
+            mode(str): RSA modes, ['PKCS1', 'PKCS1_OAEP']
             private_key(bytes): RSA private key, b'-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----'
 
         :return
             output(bytes): output data
         '''
         rsa_key = RSA.importKey(private_key)
-        cipher = PKCS1_v1_5.new(rsa_key)
+        cipher = RSAEncryptor.RSA_MODES[mode].new(rsa_key)
 
         output = b''
-        for i in range(0, len(input), bits//8):
-            output += cipher.decrypt(input[i:i + bits//8], 'Decode error.')
+
+        if mode == 'PKCS1':
+            for i in range(0, len(input), bits//8):
+                output += cipher.decrypt(input[i:i + bits//8], 'Decode error.')
+        else:
+            for i in range(0, len(input), bits//8):
+                output += cipher.decrypt(input[i:i + bits//8])
 
         return output
 
