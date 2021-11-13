@@ -6,20 +6,21 @@ from .base import BaseEncryptor
 
 
 class RSAEncryptor(BaseEncryptor):
-    def __init__(self, public_key: bytes, bits: int = 1024, **kwargs) -> None:
+    def __init__(self, bits: int = 1024, public_key: bytes = None) -> None:
         '''
         RSA Encryptor
 
-        :param 
-            public_key(bytes): RSA public key, b'-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----'
+        :param
             bits(int: 1024): RSA bits
+            public_key(bytes): RSA public key, b'-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----'
         '''
         super().__init__()
         self.bits = bits
         self.bytes = bits // 8 - 11
         self.params = {'bits': bits}
+        self.keys = self.generate_keys(bits=bits) if public_key is None else {'public_key': public_key}
 
-        rsa_key = RSA.importKey(public_key)
+        rsa_key = RSA.importKey(self.keys['public_key'])
         self.cipher = PKCS1_v1_5.new(rsa_key)
 
     def encrypt(self, input: bytes) -> bytes:
@@ -79,11 +80,12 @@ class RSAEncryptor(BaseEncryptor):
         }
 
     @classmethod
-    def new(cls: BaseEncryptor, bits: int = 1024, **kwargs) -> BaseEncryptor:
+    def new(cls: BaseEncryptor, bits: int = 1024, public_key: bytes = None) -> tuple:
         """
         new a RSA Encryptor
 
         :param 
             bits(int: 1024): RSA bits
+            public_key(bytes): RSA public key, b'-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----'
         """
-        super().new(cls, bits=bits, **kwargs)
+        return super().new(bits=bits, public_key=public_key)

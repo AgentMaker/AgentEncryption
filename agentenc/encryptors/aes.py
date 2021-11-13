@@ -19,14 +19,14 @@ ASE_MODES = {
 
 
 class AESEncryptor(BaseEncryptor):
-    def __init__(self, key: bytes, bits: int = 128, mode: str = 'ECB', **kwargs) -> None:
+    def __init__(self, bits: int = 128, mode: str = 'ECB', key: bytes = None, **kwargs) -> None:
         """
         AES Encryptor
 
         :param 
-            key(bytes: None): AES key, a length = (bits // 8) bytes key
             bits(int: 128): AES bits
             mode(str: ECB): AES mode, ['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
+            key(bytes: None): AES key, a length = (bits // 8) bytes key
             **kwargs: some other params, like 'iv', 'nonce' and so on
         """
         super().__init__()
@@ -36,8 +36,11 @@ class AESEncryptor(BaseEncryptor):
             'bits': bits,
             'mode': mode
         }
+
+        self.keys = self.generate_keys(bits=bits) if key is None else {'key': key}
+
         self.aes = AES.new(
-            key=key,
+            key=self.keys['key'],
             mode=ASE_MODES[self.mode],
             **kwargs
         )
@@ -101,13 +104,14 @@ class AESEncryptor(BaseEncryptor):
         return {'key': urandom(bits // 8)}
 
     @classmethod
-    def new(cls, bits: int = 128, mode: str = 'ECB', **kwargs) -> BaseEncryptor:
+    def new(cls, bits: int = 128, mode: str = 'ECB', key: bytes = None, **kwargs) -> tuple:
         """
         new a AES Encryptor
 
         :param 
             bits(int: 128): AES bits
             mode(str: ECB): AES mode, ['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
+            key(bytes: None): AES key, a length = (bits // 8) bytes key
             **kwargs: some other params, like 'iv', 'nonce' and so on
         """
-        return super().new(bits=bits, mode=mode, **kwargs)
+        return super().new(bits=bits, mode=mode, key=key, **kwargs)
