@@ -40,9 +40,12 @@ class AESEncryptor(BaseEncryptor):
 
         self.keys = self.generate_keys(
             bits=bits) if key is None else {'key': key}
+        key = self.keys['key']
+
+        assert len(key) == self.bytes, 'length of key is no equal to bits/8.'
 
         self.aes = AES.new(
-            key=self.keys['key'],
+            key=key,
             mode=self.ASE_MODES[self.mode],
             **kwargs
         )
@@ -67,7 +70,7 @@ class AESEncryptor(BaseEncryptor):
         amount_to_pad = AES.block_size - (length % AES.block_size)
         if amount_to_pad == 0:
             amount_to_pad = AES.block_size
-        pad = amount_to_pad.to_bytes(amount_to_pad, 'big')
+        pad = amount_to_pad * amount_to_pad.to_bytes(1, 'big')
         input += pad
         output = self.aes.encrypt(input)
         return output
