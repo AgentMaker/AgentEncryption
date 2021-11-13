@@ -4,21 +4,22 @@ from Crypto.Cipher import AES
 from .base import BaseEncryptor
 
 
-# AES Mode Switch
-ASE_MODES = {
-    'ECB': AES.MODE_ECB,
-    'CBC': AES.MODE_CBC,
-    'CFB': AES.MODE_CFB,
-    'OFB': AES.MODE_OFB,
-    'CTR': AES.MODE_CTR,
-    'CCM': AES.MODE_CCM,
-    'EAX': AES.MODE_EAX,
-    'GCM': AES.MODE_GCM,
-    'OCB': AES.MODE_OCB
-}
-
-
 class AESEncryptor(BaseEncryptor):
+    ASE_MODES = {
+        'ECB': AES.MODE_ECB,
+        'CBC': AES.MODE_CBC,
+        'CFB': AES.MODE_CFB,
+        'OFB': AES.MODE_OFB,
+        'CTR': AES.MODE_CTR,
+        'CCM': AES.MODE_CCM,
+        'EAX': AES.MODE_EAX,
+        'GCM': AES.MODE_GCM,
+        'OCB': AES.MODE_OCB
+    }
+    '''
+    AES modes: ['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
+    '''
+
     def __init__(self, bits: int = 128, mode: str = 'ECB', key: bytes = None, **kwargs) -> None:
         '''
         AES Encryptor
@@ -37,11 +38,12 @@ class AESEncryptor(BaseEncryptor):
             'mode': mode
         }
 
-        self.keys = self.generate_keys(bits=bits) if key is None else {'key': key}
+        self.keys = self.generate_keys(
+            bits=bits) if key is None else {'key': key}
 
         self.aes = AES.new(
             key=self.keys['key'],
-            mode=ASE_MODES[self.mode],
+            mode=self.ASE_MODES[self.mode],
             **kwargs
         )
 
@@ -85,7 +87,7 @@ class AESEncryptor(BaseEncryptor):
             output(bytes): output data
         '''
         kwargs = {k: v for k, v in kwargs.items() if k in ['iv', 'nonce']}
-        aes = AES.new(key=key, mode=ASE_MODES[mode], **kwargs)
+        aes = AES.new(key=key, mode=AESEncryptor.ASE_MODES[mode], **kwargs)
         output = aes.decrypt(input)
         pad = output[-1]
         return output[:-pad]
@@ -102,21 +104,3 @@ class AESEncryptor(BaseEncryptor):
             output(dict): a dict of AES key, {'key': key}
         '''
         return {'key': urandom(bits // 8)}
-
-    @classmethod
-    def new(cls, bits: int = 128, mode: str = 'ECB', key: bytes = None, **kwargs) -> tuple:
-        '''
-        new a AES Encryptor
-
-        :param 
-            bits(int: 128): AES bits
-            mode(str: ECB): AES mode, ['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
-            key(bytes: None): AES key, a length = (bits // 8) bytes key
-            **kwargs: some other params, like 'iv', 'nonce'
-
-        return:
-            obj(AESEncryptor): AES Encryptor obj
-            params(dict): params of AES Encryptor
-            keys(dict): random keys of AES Encryptor
-        '''
-        return super().new(bits=bits, mode=mode, key=key, **kwargs)

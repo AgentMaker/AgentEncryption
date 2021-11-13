@@ -8,20 +8,17 @@
     # 导入 AES 加密器
     from agentenc import AESEncryptor
 
-    # 使用 Encryptor 的 new() 方法
-    # 会自动完成随机密钥生成和加密器初始化
-    # 并返回加密器实例、加密器的参数以及生成的密钥信息
-    # new() 方法的更多参数说明请参考对应的 Encryptor
-    aes, params, keys = AESEncryptor.new(bits=128, mode='ECB')
+    # 创建一个加密器
+    aes = AESEncryptor(bits=128, mode='ECB')
 
     # 打印参数信息
-    print(params)
+    print(aes.params)
     '''
     {'bits': 128, 'mode': 'ECB'}
     '''
 
     # 打印密钥信息
-    print(keys)
+    print(aes.keys)
     '''
     {'key': b'9\xf1bu\xe8c`]\x98\x8e\xd5#d\x19\x99\x05'}
     '''
@@ -30,8 +27,7 @@
     input_data = b'Hello Encryptor.'
 
     # 使用 AES 加密器对输入数据进行加密
-    # compress 参数表示是否对数据进行压缩处理 
-    output_data = aes.encrypt(input_data, compress=True)
+    output_data = aes.encrypt(input_data)
 
     # 打印加密后的数据
     print(output_data)
@@ -41,7 +37,7 @@
 
     # 使用 AES 解密函数对加密数据进行解密
     # 解密函数需要使用上面返回的加密器参数和密钥信息
-    _input_data = AESEncryptor.decrypt(output_data, **params, **keys)
+    _input_data = AESEncryptor.decrypt(output_data, **aes.params, **aes.keys)
 
     # 打印解密数据
     print(_input_data)
@@ -78,7 +74,7 @@
 
     ```python
     import os
-    from agentenc import AESEncryptor, dump, load
+    from agentenc import AESEncryptor, dump
 
     # 随机生成密钥
     keys = AESEncryptor.generate_keys()
@@ -102,7 +98,7 @@
 * 自定义密钥加密：
 
     ```python
-    from agentenc import AESEncryptor
+    from agentenc import AESEncryptor, load
 
     # 加载密钥
     key = load('export/KEY.key')

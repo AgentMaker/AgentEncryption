@@ -18,8 +18,8 @@ class RSAEncryptor(BaseEncryptor):
         self.bits = bits
         self.bytes = bits // 8 - 11
         self.params = {'bits': bits}
-        self.keys = self.generate_keys(bits=bits) if public_key is None else {
-            'public_key': public_key}
+
+        self.keys = self.generate_keys(bits=bits) if public_key is None else {'public_key': public_key}
 
         rsa_key = RSA.importKey(self.keys['public_key'])
         self.cipher = PKCS1_v1_5.new(rsa_key)
@@ -79,19 +79,3 @@ class RSAEncryptor(BaseEncryptor):
             'private_key': private_key,
             'public_key': public_key
         }
-
-    @classmethod
-    def new(cls: BaseEncryptor, bits: int = 1024, public_key: bytes = None) -> tuple:
-        '''
-        new a RSA Encryptor
-
-        :param 
-            bits(int: 1024): RSA bits
-            public_key(bytes: None): RSA public key, b'-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----'
-
-        return:
-            obj(RSAEncryptor): RSA Encryptor obj
-            params(dict): params of RSA Encryptor
-            keys(dict): random keys of RSA Encryptor
-        '''
-        return super().new(bits=bits, public_key=public_key)

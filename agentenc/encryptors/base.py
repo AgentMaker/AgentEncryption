@@ -1,6 +1,13 @@
 class BaseEncryptor:
-    params: dict  # dict of the Encryptor params
-    keys: dict  # dict of the Encryptor keys
+    params: dict
+    '''
+    dict of the Encryptor params
+    '''
+
+    keys: dict
+    '''
+    dict of the Encryptor keys
+    '''
 
     def __init__(self, **kwargs) -> None:
         '''
@@ -27,19 +34,3 @@ class BaseEncryptor:
         generate keys
         '''
         pass
-
-    @classmethod
-    def new(cls, **kwargs) -> tuple:
-        '''
-        new a Encryptor obj
-
-        param:
-            **kwargs: some params of the Encryptor class
-
-        return:
-            obj(Encryptor): Encryptor obj
-            params(dict): params of Encryptor
-            keys(dict): random keys of Encryptor
-        '''
-        obj = cls(**kwargs)
-        return obj, obj.params, obj.keys
