@@ -31,15 +31,15 @@ class BaseEncryptor:
     @classmethod
     def new(cls, **kwargs) -> tuple:
         '''
-        new a Encryptor obj after generate keys
+        new a Encryptor obj
 
         param:
             **kwargs: some params of the Encryptor class
 
         return:
             obj(Encryptor): Encryptor obj
-            params: params of Encryptor
-            keys: random keys of Encryptor
+            params(dict): params of Encryptor
+            keys(dict): random keys of Encryptor
         '''
         obj = cls(**kwargs)
         return obj, obj.params, obj.keys

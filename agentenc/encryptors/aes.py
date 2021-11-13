@@ -20,15 +20,15 @@ ASE_MODES = {
 
 class AESEncryptor(BaseEncryptor):
     def __init__(self, bits: int = 128, mode: str = 'ECB', key: bytes = None, **kwargs) -> None:
-        """
+        '''
         AES Encryptor
 
         :param 
             bits(int: 128): AES bits
             mode(str: ECB): AES mode, ['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
             key(bytes: None): AES key, a length = (bits // 8) bytes key
-            **kwargs: some other params, like 'iv', 'nonce' and so on
-        """
+            **kwargs: some other params, like 'iv', 'nonce'
+        '''
         super().__init__()
         self.bytes = bits // 8
         self.mode = mode
@@ -52,7 +52,7 @@ class AESEncryptor(BaseEncryptor):
             self.params['nonce'] = self.aes.nonce
 
     def encrypt(self, input: bytes) -> bytes:
-        """
+        '''
         AES encrypt
 
         :param 
@@ -60,7 +60,7 @@ class AESEncryptor(BaseEncryptor):
 
         :return
             output(bytes): output data
-        """
+        '''
         length = len(input)
         amount_to_pad = AES.block_size - (length % AES.block_size)
         if amount_to_pad == 0:
@@ -72,7 +72,7 @@ class AESEncryptor(BaseEncryptor):
 
     @staticmethod
     def decrypt(input: bytes, mode: str, key: bytes, **kwargs) -> bytes:
-        """
+        '''
         AES decrypt
 
         :param 
@@ -83,7 +83,7 @@ class AESEncryptor(BaseEncryptor):
 
         :return
             output(bytes): output data
-        """
+        '''
         kwargs = {k: v for k, v in kwargs.items() if k in ['iv', 'nonce']}
         aes = AES.new(key=key, mode=ASE_MODES[mode], **kwargs)
         output = aes.decrypt(input)
@@ -105,13 +105,18 @@ class AESEncryptor(BaseEncryptor):
 
     @classmethod
     def new(cls, bits: int = 128, mode: str = 'ECB', key: bytes = None, **kwargs) -> tuple:
-        """
+        '''
         new a AES Encryptor
 
         :param 
             bits(int: 128): AES bits
             mode(str: ECB): AES mode, ['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
             key(bytes: None): AES key, a length = (bits // 8) bytes key
-            **kwargs: some other params, like 'iv', 'nonce' and so on
-        """
+            **kwargs: some other params, like 'iv', 'nonce'
+
+        return:
+            obj(AESEncryptor): AES Encryptor obj
+            params(dict): params of AES Encryptor
+            keys(dict): random keys of AES Encryptor
+        '''
         return super().new(bits=bits, mode=mode, key=key, **kwargs)
