@@ -26,7 +26,10 @@ class RSAEncryptor(BaseEncryptor):
         super().__init__()
         self.bits = bits
         self.bytes = bits // 8 - 11
-        self.params = {'bits': bits}
+        self.params = {
+            'bits': bits,
+            'mode': mode
+        }
 
         self.keys = self.generate_keys(bits=bits) if public_key is None else {
             'public_key': public_key}
