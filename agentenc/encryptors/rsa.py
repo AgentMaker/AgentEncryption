@@ -77,3 +77,13 @@ class RSAEncryptor(BaseEncryptor):
             'private_key': private_key,
             'public_key': public_key
         }
+
+    @classmethod
+    def new(cls: BaseEncryptor, bits: int = 1024, **kwargs) -> BaseEncryptor:
+        """
+        new a RSA Encryptor
+
+        :param 
+            bits(int: 1024): RSA bits
+        """
+        super().new(cls, bits=bits, **kwargs)

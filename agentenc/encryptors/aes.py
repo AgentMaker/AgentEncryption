@@ -24,9 +24,9 @@ class AESEncryptor(BaseEncryptor):
         AES Encryptor
 
         :param 
+            key(bytes: None): AES key, a length = (bits // 8) bytes key
             bits(int: 128): AES bits
             mode(str: ECB): AES mode, ['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
-            key(bytes: None): AES key, a length = (bits // 8) bytes key
             **kwargs: some other params, like 'iv', 'nonce' and so on
         """
         super().__init__()
@@ -99,3 +99,15 @@ class AESEncryptor(BaseEncryptor):
             output(dict): a dict of AES key, {'key': key}
         '''
         return {'key': urandom(bits // 8)}
+
+    @classmethod
+    def new(cls, bits: int = 128, mode: str = 'ECB', **kwargs) -> BaseEncryptor:
+        """
+        new a AES Encryptor
+
+        :param 
+            bits(int: 128): AES bits
+            mode(str: ECB): AES mode, ['ECB', 'CBC', 'CFB', 'OFB', 'CTR', 'CCM', 'EAX', 'GCM', 'OCB']
+            **kwargs: some other params, like 'iv', 'nonce' and so on
+        """
+        return super().new(bits=bits, mode=mode, **kwargs)

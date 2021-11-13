@@ -26,7 +26,7 @@ class BaseEncryptor:
         pass
 
     @classmethod
-    def new(cls, **kwargs):
+    def new(cls: object, **kwargs) -> object:
         '''
         new a Encryptor obj after generate keys
 
